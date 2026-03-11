@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block title %}Splitly • Split Bills Fairly in Seconds{% endblock %}
+
+{% block content %}
+
+  <!-- HERO -->
+  <section class="hero-bg pt-32 pb-40 text-center px-6 relative">
+    <div class="max-w-5xl mx-auto relative z-10">
+      <div class="inline-flex items-center gap-3 bg-white/10 px-6 py-3 rounded-3xl mb-8 backdrop-blur-md">
+        <i class="fas fa-star text-yellow-400"></i>
+        <span>Featured in Kathmandu Tech Meetup</span>
+      </div>
+      <h1 class="text-6xl md:text-8xl font-bold mb-8 leading-tight">Split bills fairly in seconds</h1>
+      <p class="text-2xl text-zinc-300 mb-12 max-w-3xl mx-auto">No more awkward money talks. Perfect for flatmates, trips, and events in Nepal.</p>
+      <a href="{% url 'signup' %}" 
+         class="bg-white text-black text-2xl font-semibold px-16 py-6 rounded-3xl hover:scale-105 transition">
+        Get Started Free
+      </a>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how" class="py-24 px-6">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-5xl font-bold text-center mb-20">How Splitly Works</h2>
+      <div class="grid md:grid-cols-3 gap-12">
+        <div class="section-card bg-zinc-900 p-10 rounded-3xl">
+          <i class="fas fa-plus text-6xl text-violet-400 mb-8"></i>
+          <h3 class="text-2xl font-semibold mb-4">Create a Group</h3>
+          <p class="text-zinc-400">Start a split for your flatmates, trip, or event. Add initial amount if needed.</p>
+        </div>
+        <div class="section-card bg-zinc-900 p-10 rounded-3xl">
+          <i class="fas fa-wallet text-6xl text-violet-400 mb-8"></i>
+          <h3 class="text-2xl font-semibold mb-4">Add Expenses</h3>
+          <p class="text-zinc-400">Log bills as they happen. Approve or flag for group consensus.</p>
+        </div>
+        <div class="section-card bg-zinc-900 p-10 rounded-3xl">
+          <i class="fas fa-handshake text-6xl text-violet-400 mb-8"></i>
+          <h3 class="text-2xl font-semibold mb-4">Settle Up</h3>
+          <p class="text-zinc-400">See who owes what. Export PDF for easy sharing.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" class="py-24 bg-zinc-900">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-5xl font-bold text-center mb-20">Why Choose Splitly?</h2>
+      <div class="grid md:grid-cols-2 gap-12">
+        <div class="flex items-start gap-6">
+          <i class="fas fa-lock text-4xl text-emerald-400 mt-1"></i>
+          <div>
+            <h3 class="text-2xl font-semibold mb-3">Private & Secure</h3>
+            <p class="text-zinc-400">All data stored securely on our servers.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-6">
+          <i class="fas fa-mobile-alt text-4xl text-emerald-400 mt-1"></i>
+          <div>
+            <h3 class="text-2xl font-semibold mb-3">Mobile Friendly</h3>
+            <p class="text-zinc-400">Works perfectly on any device.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-6">
+          <i class="fas fa-rupee-sign text-4xl text-emerald-400 mt-1"></i>
+          <div>
+            <h3 class="text-2xl font-semibold mb-3">Nepal Focused</h3>
+            <p class="text-zinc-400">Uses रू currency with local examples.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-6">
+          <i class="fas fa-users text-4xl text-emerald-400 mt-1"></i>
+          <div>
+            <h3 class="text-2xl font-semibold mb-3">Group Consensus</h3>
+            <p class="text-zinc-400">Approve expenses collectively.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCENARIOS -->
+  <section id="scenarios" class="py-24 px-6">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-5xl font-bold text-center mb-20">Perfect For</h2>
+      <div class="grid md:grid-cols-3 gap-12">
+        <div class="section-card bg-zinc-900 p-10 rounded-3xl">
+          <i class="fas fa-home text-6xl text-violet-400 mb-8"></i>
+          <h3 class="text-2xl font-semibold mb-4">Flatmates & Roommates</h3>
+          <p class="text-zinc-400 mb-4">Split rent, utilities, and groceries monthly.</p>
+          <ul class="text-zinc-400 text-sm space-y-2 list-disc pl-5">
+            <li>Recurring expense tracking</li>
+            <li>Uneven split options</li>
+            <li>Approval workflow</li>
+          </ul>
+        </div>
+        <div class="section-card bg-zinc-900 p-10 rounded-3xl">
+          <i class="fas fa-plane text-6xl text-violet-400 mb-8"></i>
+          <h3 class="text-2xl font-semibold mb-4">Group Trips & Vacations</h3>
+          <p class="text-zinc-400 mb-4">Track shared costs for hotels, food, and transport.</p>
+          <ul class="text-zinc-400 text-sm space-y-2 list-disc pl-5">
+            <li>Real-time expense adding</li>
+            <li>PDF export for settlements</li>
+            <li>Invite friends easily</li>
+          </ul>
+        </div>
+        <div class="section-card bg-zinc-900 p-10 rounded-3xl">
+          <i class="fas fa-users text-6xl text-violet-400 mb-8"></i>
+          <h3 class="text-2xl font-semibold mb-4">Social and Family Gatherings</h3>
+          <p class="text-zinc-400 mb-4">Equitably divide expenses for events, gifts, or outings.</p>
+          <ul class="text-zinc-400 text-sm space-y-2 list-disc pl-5">
+            <li>Single-event split configuration</li>
+            <li>Built-in approval workflow</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="py-24 bg-gradient-to-b from-zinc-900 to-black text-center">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-5xl font-bold mb-6">Ready to end the bill fights?</h2>
+      <a href="{% url 'signup' %}" 
+         class="inline-block bg-white text-black text-2xl font-semibold px-16 py-7 rounded-3xl hover:scale-110 transition">
+        Create Your First Split — Free
+      </a>
+    </div>
+  </section>
+
+{% endblock %}
