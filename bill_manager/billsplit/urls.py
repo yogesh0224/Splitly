@@ -11,4 +11,7 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
     path('signup/', views.signup, name='signup'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('create-group/', views.create_group, name='create_group'),
+    path('delete-group/<int:group_id>/', views.delete_group, name='delete_group'),
+    path('export/', views.export_data, name='export_data'),
 ]
