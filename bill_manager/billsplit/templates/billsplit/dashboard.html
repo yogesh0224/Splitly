@@ -18,7 +18,7 @@
     </div>
   </div>
 
-  <!-- Stats -->
+  <!-- Stats Cards -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
     <div class="bg-zinc-900 rounded-3xl p-6">
       <div class="flex items-center gap-3 mb-2">
@@ -55,24 +55,22 @@
   <div id="groupsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6">
     {% for group in groups %}
       <div class="group-card bg-zinc-900 rounded-3xl p-8 shadow-lg hover:scale-[1.02] transition-all cursor-pointer"
-           onclick="window.location.href='{% url 'split_detail' group.id %}'">
+           onclick="window.location.href='{% url 'split_detail' group.id %}'"
         <div class="flex justify-between items-start mb-4">
           <div>
             <h3 class="font-bold text-2xl">{{ group.title }}</h3>
             <p class="text-sm text-zinc-400">{{ group.split_type|title }} • Created by {{ group.creator.username }}</p>
           </div>
           <span class="bg-emerald-500/10 text-emerald-400 text-xs px-4 py-1 rounded-full">
-            {{ group.members.filter(accepted=True)|length }} members
+            {{ group.accepted_members_count }} members
           </span>
         </div>
         <div class="flex items-center justify-between">
           <p class="text-3xl font-bold text-violet-400">रू {{ group.total|floatformat:0 }}</p>
-          <div class="flex gap-3">
-            <button onclick="event.stopImmediatePropagation(); deleteGroup({{ group.id }})" 
-                    class="text-red-400 hover:text-red-500">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
+          <button onclick="event.stopImmediatePropagation(); deleteGroup({{ group.id }})" 
+                  class="text-red-400 hover:text-red-500">
+            <i class="fas fa-trash"></i>
+          </button>
         </div>
       </div>
     {% empty %}
@@ -89,16 +87,11 @@
 function showCreateModal() {
   fetch("{% url 'create_group' %}")
     .then(r => r.text())
-    .then(html => {
-      document.body.insertAdjacentHTML('beforeend', html);
-    });
+    .then(html => document.body.insertAdjacentHTML('beforeend', html));
 }
 
 function selectType(btn) {
-  document.querySelectorAll('.type-btn').forEach(b => {
-    b.classList.remove('border-violet-500', 'bg-violet-500/10');
-    b.classList.add('border-white/20');
-  });
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('border-violet-500', 'bg-violet-500/10'));
   btn.classList.add('border-violet-500', 'bg-violet-500/10');
   document.getElementById('split_type').value = btn.dataset.type;
 }

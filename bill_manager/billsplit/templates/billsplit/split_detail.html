@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% block title %}{{ group.title }} • Splitly{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-6 pt-28 pb-20">
+  <!-- Header -->
+  <div class="flex justify-between items-start mb-12">
+    <div>
+      <h1 class="text-5xl font-bold">{{ group.title }}</h1>
+      <p class="text-zinc-400">
+        {{ group.split_type|title }} • Total: रू {{ group.total|floatformat:0 }} • {{ accepted_members|length }} members
+      </p>
+    </div>
+    <div class="flex gap-4">
+      <button onclick="showAddExpenseModal()" 
+              class="bg-violet-600 hover:bg-violet-500 px-8 py-4 rounded-3xl font-medium">Add Expense</button>
+      <button onclick="exportPdf()" 
+              class="bg-white/10 px-6 py-4 rounded-3xl">Export PDF</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex border-b border-white/10 mb-10 overflow-x-auto">
+    <button onclick="switchTab(0)" id="tab0" class="tab-btn active px-8 py-4 font-semibold border-b-2 border-violet-500">Expenses</button>
+    <button onclick="switchTab(1)" id="tab1" class="tab-btn px-8 py-4 font-semibold">Summary</button>
+    <button onclick="switchTab(2)" id="tab2" class="tab-btn px-8 py-4 font-semibold">Members & Shares</button>
+    <button onclick="switchTab(3)" id="tab3" class="tab-btn px-8 py-4 font-semibold">Timeline</button>
+  </div>
+
+  <!-- EXPENSES TAB -->
+  <div id="content0" class="tab-content">
+    <div class="flex justify-between mb-8">
+      <h2 class="text-3xl font-bold">Expenses</h2>
+      <button onclick="showAddExpenseModal()" class="bg-violet-600 hover:bg-violet-500 px-8 py-4 rounded-3xl">+ Add Expense</button>
+    </div>
+    <div id="expensesList" class="space-y-4">
+      {% for exp in expenses %}
+        <div class="bg-zinc-900 rounded-3xl p-6 flex justify-between items-center">
+          <div>
+            <h3 class="text-xl font-semibold">{{ exp.name }}</h3>
+            <p class="text-zinc-400">रू {{ exp.amount|floatformat:0 }} • {{ exp.date }} • {{ exp.added_by.username }}</p>
+          </div>
+          <div class="flex gap-3">
+            {% if exp.added_by != user %}
+              <button onclick="approveExpense({{ exp.id }})" class="bg-emerald-600 px-6 py-2 rounded-2xl">Approve</button>
+            {% endif %}
+            <button onclick="flagExpense({{ exp.id }})" class="bg-red-600 px-6 py-2 rounded-2xl">Flag</button>
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-center py-12 text-zinc-400">No expenses yet. Add one above!</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- SUMMARY TAB -->
+  <div id="content1" class="tab-content hidden">
+    <h2 class="text-3xl font-bold mb-8">Summary & Insights</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="bg-zinc-900 rounded-3xl p-8">
+        <h3 class="font-semibold mb-6">Contributions by Member</h3>
+        <canvas id="pieChart"></canvas>
+      </div>
+      <div class="bg-zinc-900 rounded-3xl p-8">
+        <h3 class="font-semibold mb-6">Net Balance</h3>
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEMBERS TAB -->
+  <div id="content2" class="tab-content hidden">
+    <h2 class="text-3xl font-bold mb-8">Members & Shares</h2>
+    <div class="space-y-4">
+      {% for member in accepted_members %}
+        <div class="bg-zinc-900 rounded-3xl p-6 flex justify-between">
+          <span class="font-medium">{{ member.user.username }}</span>
+          <span class="text-emerald-400">Accepted</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- TIMELINE TAB -->
+  <div id="content3" class="tab-content hidden">
+    <h2 class="text-3xl font-bold mb-8">Activity Timeline</h2>
+    <div class="space-y-8">
+      {% for entry in timeline %}
+        <div class="flex gap-6">
+          <div class="text-xs text-zinc-400 w-24">{{ entry.timestamp|date:"M d, H:i" }}</div>
+          <div class="flex-1 bg-zinc-900 rounded-3xl p-6">
+            {{ entry.action }} <span class="text-violet-400">by {{ entry.by_user.username }}</span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Tab switching
+  function switchTab(n) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.getElementById(`content${n}`).classList.remove('hidden');
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active', 'border-b-2', 'border-violet-500'));
+    document.getElementById(`tab${n}`).classList.add('active', 'border-b-2', 'border-violet-500');
+  }
+
+  // Charts (Summary tab)
+  function renderCharts() {
+    const contributions = {{ contributions|json_script:"contributions" }};
+    const balances = {{ balances|json_script:"balances" }};
+
+    new Chart(document.getElementById('pieChart'), {
+      type: 'pie',
+      data: {
+        labels: Object.keys(contributions),
+        datasets: [{ data: Object.values(contributions), backgroundColor: ['#7c3aed','#10b981','#ef4444','#3b82f6'] }]
+      }
+    });
+
+    new Chart(document.getElementById('barChart'), {
+      type: 'bar',
+      data: {
+        labels: Object.keys(balances),
+        datasets: [{ label: 'Net Balance (रू)', data: Object.values(balances), backgroundColor: '#7c3aed' }]
+      }
+    });
+  }
+
+  // Simple modals (expand later with HTMX)
+  function showAddExpenseModal() {
+    alert("Add Expense modal coming in Phase 6 with full HTMX!");
+  }
+
+  // Initial load
+  window.onload = () => {
+    switchTab(0);
+    if (document.getElementById('pieChart')) renderCharts();
+  };
+</script>
+{% endblock %}

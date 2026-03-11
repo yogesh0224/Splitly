@@ -14,4 +14,7 @@ urlpatterns = [
     path('create-group/', views.create_group, name='create_group'),
     path('delete-group/<int:group_id>/', views.delete_group, name='delete_group'),
     path('export/', views.export_data, name='export_data'),
+    
+    # NEW: Split Detail
+    path('split/<int:group_id>/', views.split_detail, name='split_detail'),
 ]

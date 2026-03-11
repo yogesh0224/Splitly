@@ -31,6 +31,10 @@ def dashboard(request):
         members__accepted=True
     ).order_by('-created_at')
 
+    # Pre-compute accepted member count (clean & fast)
+    for group in my_groups:
+        group.accepted_members_count = group.members.filter(accepted=True).count()
+
     # Stats
     total_groups = my_groups.count()
     total_spending = my_groups.aggregate(Sum('total'))['total__sum'] or Decimal('0.00')
@@ -92,3 +96,43 @@ def export_data(request):
     response = HttpResponse(json.dumps(data, indent=2), content_type='application/json')
     response['Content-Disposition'] = 'attachment; filename="splitly-data.json"'
     return response
+
+@login_required
+def split_detail(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    
+    # Only members can view
+    if not group.members.filter(user=request.user, accepted=True).exists():
+        return redirect('dashboard')
+
+    expenses = group.expenses.all().order_by('-date')
+    timeline = group.timeline.all()
+
+    # Calculate balances for Summary tab
+    accepted_members = group.members.filter(accepted=True)
+    balances = {}
+    contributions = {}
+    total_expenses = expenses.count()
+    
+    for member in accepted_members:
+        user = member.user
+        balances[user.username] = Decimal('0.00')
+        contributions[user.username] = Decimal('0.00')
+
+    for exp in expenses:
+        share = exp.amount / accepted_members.count()
+        for m in accepted_members:
+            balances[m.user.username] -= share
+        balances[exp.added_by.username] += exp.amount
+        contributions[exp.added_by.username] += exp.amount
+
+    context = {
+        'group': group,
+        'expenses': expenses,
+        'timeline': timeline,
+        'balances': balances,
+        'contributions': contributions,
+        'accepted_members': accepted_members,
+        'total_expenses': total_expenses,
+    }
+    return render(request, 'billsplit/split_detail.html', context)
