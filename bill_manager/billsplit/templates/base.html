@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Splitly{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#18181b"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .logo-font { font-family: 'Space+Grotesk', sans-serif; }
+  </style>
+</head>
+<body class="bg-zinc-950 text-white overflow-x-hidden">
+
+  <!-- NAVBAR (exactly your design, now dynamic) -->
+  <nav class="fixed top-0 w-full bg-zinc-950/95 backdrop-blur-2xl border-b border-white/10 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+      <a href="{% url 'home' %}" class="flex items-center gap-3">
+        <i class="fas fa-handshake text-4xl text-violet-500"></i>
+        <span class="text-3xl font-bold tracking-tighter logo-font">Splitly</span>
+      </a>
+
+      <!-- Desktop Menu -->
+      <div class="hidden md:flex gap-10 text-sm font-medium">
+        <a href="{% url 'home' %}" class="hover:text-violet-400 transition">Home</a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'dashboard' %}" class="text-violet-400 font-semibold">Dashboard</a>
+          <a href="{% url 'admin:index' %}" class="hover:text-violet-400 transition">Invites</a>
+        {% endif %}
+      </div>
+
+      <!-- Right Side -->
+      <div class="hidden md:flex items-center gap-6">
+        {% if user.is_authenticated %}
+          <span class="text-sm font-medium">{{ user.username }}</span>
+          <a href="{% url 'logout' %}" 
+             class="text-xs bg-white/10 px-5 py-2 rounded-2xl hover:bg-white/20 transition">Logout</a>
+        {% else %}
+          <a href="{% url 'login' %}" class="text-xs bg-white/10 px-5 py-2 rounded-2xl hover:bg-white/20 transition">Login</a>
+          <a href="{% url 'signup' %}" 
+             class="bg-violet-600 hover:bg-violet-500 px-5 py-2 rounded-2xl transition">Sign Up Free</a>
+        {% endif %}
+      </div>
+
+      <!-- Mobile Hamburger -->
+      <button onclick="toggleMobileMenu()" class="md:hidden text-3xl">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <!-- MOBILE DRAWER (same as your original) -->
+    <div id="mobileMenu" class="hidden fixed inset-0 bg-black/70 z-[60] flex justify-end">
+      <div onclick="event.stopImmediatePropagation()" 
+           class="bg-zinc-900 w-80 h-full shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-6 border-b border-white/10 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <i class="fas fa-handshake text-3xl text-violet-500"></i>
+            <span class="text-2xl font-bold logo-font">Splitly</span>
+          </div>
+          <button onclick="toggleMobileMenu()" class="text-3xl text-zinc-400 hover:text-white">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="flex-1 p-6 space-y-6 text-lg">
+          <a href="{% url 'home' %}" onclick="toggleMobileMenu()" class="flex items-center gap-4">Home</a>
+          {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" onclick="toggleMobileMenu()" class="flex items-center gap-4">Dashboard</a>
+          {% endif %}
+        </div>
+        {% if user.is_authenticated %}
+        <div class="p-6 border-t border-white/10">
+          <div class="flex items-center gap-3 mb-6">
+            <i class="fas fa-user-circle text-4xl text-violet-400"></i>
+            <div>
+              <p class="font-medium">{{ user.username }}</p>
+              <p class="text-xs text-zinc-400">Logged in</p>
+            </div>
+          </div>
+          <a href="{% url 'logout' %}" class="block w-full text-center py-4 bg-red-600 hover:bg-red-500 rounded-3xl font-medium">Logout</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  {% block content %}{% endblock %}
+
+  <footer class="bg-black py-12 text-center text-zinc-500 text-sm">© 2026 Splitly</footer>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init({ duration: 900, once: true });
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      const drawer = menu.querySelector('div');
+      if (menu.classList.contains('hidden')) {
+        menu.classList.remove('hidden');
+        setTimeout(() => drawer.style.transform = 'translateX(0)', 10);
+      } else {
+        drawer.style.transform = 'translateX(100%)';
+        setTimeout(() => menu.classList.add('hidden'), 300);
+      }
+    }
+  </script>
+</body>
+</html>
