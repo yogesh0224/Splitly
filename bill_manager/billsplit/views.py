@@ -31,24 +31,21 @@ def dashboard(request):
         members__accepted=True
     ).order_by('-created_at')
 
-    # Pre-compute accepted member count (clean & fast)
+    # Pre-compute member count (safe)
     for group in my_groups:
         group.accepted_members_count = group.members.filter(accepted=True).count()
 
-    # Stats
     total_groups = my_groups.count()
-    total_spending = my_groups.aggregate(Sum('total'))['total__sum'] or Decimal('0.00')
-    total_members = GroupMember.objects.filter(
-        group__in=my_groups, accepted=True
-    ).count()
+    total_spending = my_groups.aggregate(Sum('total'))['total__sum'] or 0
+    total_members = GroupMember.objects.filter(group__in=my_groups, accepted=True).count()
 
-    context = {
+    return render(request, 'billsplit/dashboard.html', {
         'groups': my_groups,
         'total_groups': total_groups,
         'total_spending': total_spending,
         'total_members': total_members,
-    }
-    return render(request, 'billsplit/dashboard.html', context)
+    })
+
 
 @login_required
 def create_group(request):
@@ -71,9 +68,9 @@ def create_group(request):
             by_user=request.user
         )
 
-        messages.success(request, "Group created successfully!")
         return redirect('dashboard')
-    return render(request, 'billsplit/partials/create_modal.html')
+    
+    return render(request, 'billsplit/create_group_form.html')
 
 @login_required
 def delete_group(request, group_id):
@@ -136,3 +133,77 @@ def split_detail(request, group_id):
         'total_expenses': total_expenses,
     }
     return render(request, 'billsplit/split_detail.html', context)
+
+@login_required
+def add_expense(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    if request.method == 'POST':
+        name = request.POST['name']
+        amount = Decimal(request.POST['amount'])
+        date = request.POST.get('date', timezone.now().date())
+        
+        expense = Expense.objects.create(
+            group=group,
+            name=name,
+            amount=amount,
+            date=date,
+            added_by=request.user
+        )
+        TimelineEntry.objects.create(
+            group=group,
+            action=f'Expense "{name}" added',
+            by_user=request.user
+        )
+        return redirect('split_detail', group_id=group_id)
+    return render(request, 'billsplit/partials/add_expense_modal.html', {'group': group})
+
+@login_required
+def approve_expense(request, expense_id):
+    expense = get_object_or_404(Expense, id=expense_id)
+    if request.user != expense.added_by:
+        expense.approved_by.add(request.user)
+        if expense.approved_by.count() >= expense.group.members.filter(accepted=True).count() - 1:
+            expense.status = 'approved'
+        expense.save()
+        TimelineEntry.objects.create(
+            group=expense.group,
+            action=f'Expense "{expense.name}" approved',
+            by_user=request.user
+        )
+    return redirect('split_detail', group_id=expense.group.id)
+
+@login_required
+def flag_expense(request, expense_id):
+    expense = get_object_or_404(Expense, id=expense_id)
+    if request.method == 'POST':
+        remark = request.POST['remark']
+        expense.flagged_by.add(request.user)
+        expense.flag_remark = remark
+        expense.save()
+        TimelineEntry.objects.create(
+            group=expense.group,
+            action=f'Expense "{expense.name}" flagged: {remark}',
+            by_user=request.user
+        )
+    return redirect('split_detail', group_id=expense.group.id)
+
+@login_required
+def send_invite(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    username = request.POST.get('username')
+    try:
+        user_to_invite = User.objects.get(username=username)
+        Invite.objects.create(
+            group=group,
+            from_user=request.user,
+            to_user=user_to_invite
+        )
+        TimelineEntry.objects.create(
+            group=group,
+            action=f'Invite sent to {username}',
+            by_user=request.user
+        )
+        messages.success(request, f"Invite sent to {username}")
+    except User.DoesNotExist:
+        messages.error(request, "User not found")
+    return redirect('split_detail', group_id=group_id)

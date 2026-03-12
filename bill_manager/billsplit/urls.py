@@ -17,4 +17,8 @@ urlpatterns = [
     
     # NEW: Split Detail
     path('split/<int:group_id>/', views.split_detail, name='split_detail'),
+    path('split/<int:group_id>/add-expense/', views.add_expense, name='add_expense'),
+    path('expense/<int:expense_id>/approve/', views.approve_expense, name='approve_expense'),
+    path('expense/<int:expense_id>/flag/', views.flag_expense, name='flag_expense'),
+    path('split/<int:group_id>/invite/', views.send_invite, name='send_invite'),
 ]

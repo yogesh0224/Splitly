@@ -1,0 +1,12 @@
+<div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50" id="addExpenseModal">
+  <div class="bg-zinc-900 rounded-3xl p-8 max-w-md w-full">
+    <h3 class="text-xl font-semibold mb-6">Add New Expense</h3>
+    <form hx-post="{% url 'add_expense' group.id %}" hx-target="#content0" hx-swap="outerHTML" class="space-y-6">
+      {% csrf_token %}
+      <input name="name" placeholder="Expense title" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4" required>
+      <input name="amount" type="number" placeholder="Amount (रू)" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4" required>
+      <input name="date" type="date" value="{{ today|date:'Y-m-d' }}" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4">
+      <button type="submit" class="w-full bg-violet-600 py-4 rounded-3xl font-semibold">Add Expense</button>
+    </form>
+  </div>
+</div>

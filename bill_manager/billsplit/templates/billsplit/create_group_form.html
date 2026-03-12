@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Create New Group • Splitly{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto pt-32 px-6">
+  <div class="bg-zinc-900 rounded-3xl p-10 shadow-2xl">
+    <h1 class="text-3xl font-bold mb-8">Create New Group</h1>
+    
+    <form method="post">
+      {% csrf_token %}
+      <div class="space-y-8">
+        <div>
+          <label class="block text-sm text-zinc-400 mb-2">Group Name</label>
+          <input name="title" type="text" placeholder="Thamel Flatmates" 
+                 class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 text-lg" required>
+        </div>
+        
+        <div>
+          <label class="block text-sm text-zinc-400 mb-2">Initial Amount (रू) – optional</label>
+          <input name="total" type="number" placeholder="0" 
+                 class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 text-lg">
+        </div>
+
+        <div>
+          <label class="block text-sm text-zinc-400 mb-2">Group Type</label>
+          <select name="split_type" class="w-full bg-zinc-800 border border-white/10 rounded-2xl px-6 py-4 text-lg">
+            <option value="one-time">One-time Event (Trip, Picnic, Party)</option>
+            <option value="ongoing">Ongoing Flatmates (Monthly rent, etc.)</option>
+          </select>
+        </div>
+
+        <button type="submit" 
+                class="w-full bg-violet-600 hover:bg-violet-500 py-5 rounded-3xl font-semibold text-lg">
+          Create Group Now
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
