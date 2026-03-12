@@ -4,30 +4,91 @@
 {% block content %}
 <div class="max-w-6xl mx-auto px-6 pt-28 pb-20">
 
-  <h1 class="text-5xl font-bold mb-4">{{ group.title }}</h1>
-  <p class="text-zinc-400 mb-10">Total: रू {{ group.total|floatformat:0 }} • {{ accepted_members|length }} members</p>
-
-  <h2 class="text-3xl font-bold mb-8">Expenses</h2>
-  <div class="space-y-4">
-    {% for exp in expenses %}
-      <div class="bg-zinc-900 rounded-3xl p-6 flex justify-between items-center">
-        <div>
-          <h3 class="text-xl font-semibold">{{ exp.name }}</h3>
-          <p class="text-zinc-400">रू {{ exp.amount|floatformat:0 }} • {{ exp.date }} • by {{ exp.added_by.username }}</p>
-        </div>
-        <div class="flex gap-3">
-          <a href="{% url 'approve_expense' exp.id %}" 
-             class="bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-2xl text-sm">Approve</a>
-          <a href="{% url 'flag_expense' exp.id %}" 
-             class="bg-red-600 hover:bg-red-500 px-6 py-3 rounded-2xl text-sm">Flag</a>
-        </div>
-      </div>
-    {% empty %}
-      <div class="bg-zinc-900 rounded-3xl p-16 text-center">
-        <p class="text-2xl text-zinc-400">No expenses yet</p>
-      </div>
-    {% endfor %}
+  <!-- HEADER -->
+  <div class="flex justify-between items-start mb-12">
+    <div>
+      <h1 class="text-5xl font-bold">{{ group.title }}</h1>
+      <p class="text-zinc-400">{{ group.split_type|title }} • Total: रू {{ group.total|floatformat:0 }} • {{ accepted_members|length }} members</p>
+    </div>
+    <a href="{% url 'add_expense' group.id %}" class="bg-violet-600 hover:bg-violet-500 px-8 py-4 rounded-3xl font-medium">+ Add Expense</a>
   </div>
 
+  <!-- TABS -->
+  <div class="flex border-b border-white/10 mb-10 overflow-x-auto">
+    <button onclick="switchTab(0)" id="tab0" class="tab-btn active px-8 py-4 font-semibold border-b-2 border-violet-500">Expenses</button>
+    <button onclick="switchTab(1)" id="tab1" class="tab-btn px-8 py-4 font-semibold">Summary</button>
+    <button onclick="switchTab(2)" id="tab2" class="tab-btn px-8 py-4 font-semibold">Members</button>
+    <button onclick="switchTab(3)" id="tab3" class="tab-btn px-8 py-4 font-semibold">Timeline</button>
+  </div>
+
+  <!-- EXPENSES TAB -->
+  <div id="content0" class="tab-content">
+    <div class="space-y-4">
+      {% for exp in expenses %}
+        <div class="bg-zinc-900 rounded-3xl p-6 flex justify-between items-center">
+          <div>
+            <h3 class="text-xl font-semibold">{{ exp.name }}</h3>
+            <p class="text-zinc-400">रू {{ exp.amount|floatformat:0 }} • {{ exp.date }} • by {{ exp.added_by.username }}</p>
+          </div>
+          <div class="flex gap-3">
+            <a href="{% url 'approve_expense' exp.id %}" class="bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-2xl text-sm">Approve</a>
+            <a href="{% url 'flag_expense' exp.id %}" class="bg-red-600 hover:bg-red-500 px-6 py-3 rounded-2xl text-sm">Flag</a>
+          </div>
+        </div>
+      {% empty %}
+        <div class="bg-zinc-900 rounded-3xl p-16 text-center">
+          <p class="text-2xl text-zinc-400">No expenses yet</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- SUMMARY TAB (Safe - No Chart JS) -->
+  <div id="content1" class="tab-content hidden">
+    <h2 class="text-3xl font-bold mb-8">Summary & Insights</h2>
+    <div class="bg-zinc-900 rounded-3xl p-10 text-center">
+      <p class="text-2xl text-zinc-400">Charts coming in next step (after this page is stable)</p>
+      <p class="mt-4 text-zinc-500">Total Expenses: {{ total_expenses|default:0 }}</p>
+    </div>
+  </div>
+
+  <!-- MEMBERS TAB -->
+  <div id="content2" class="tab-content hidden">
+    <h2 class="text-3xl font-bold mb-8">Members & Shares</h2>
+    <div class="space-y-4">
+      {% for member in accepted_members %}
+        <div class="bg-zinc-900 rounded-3xl p-6 flex justify-between">
+          <span class="font-medium">{{ member.user.username }}</span>
+          <span class="text-emerald-400">Accepted</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- TIMELINE TAB -->
+  <div id="content3" class="tab-content hidden">
+    <h2 class="text-3xl font-bold mb-8">Activity Timeline</h2>
+    <div class="space-y-6">
+      {% for entry in timeline %}
+        <div class="bg-zinc-900 rounded-3xl p-6">
+          <p class="font-medium">{{ entry.action }}</p>
+          <p class="text-xs text-zinc-400 mt-1">by {{ entry.by_user.username }} • {{ entry.timestamp|date:"M d, H:i" }}</p>
+        </div>
+      {% empty %}
+        <p class="text-zinc-400">No activity yet</p>
+      {% endfor %}
+    </div>
+  </div>
 </div>
+
+<script>
+function switchTab(n) {
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+  document.getElementById(`content${n}`).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'border-b-2', 'border-violet-500'));
+  document.getElementById(`tab${n}`).classList.add('active', 'border-b-2', 'border-violet-500');
+}
+
+window.onload = () => switchTab(0);
+</script>
 {% endblock %}
